@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billboard Advertising Studio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="window" id="window">
+        <div class="titlebar" id="titlebar">
+            <div class="titlebar-left">
+                <div class="logo">AD</div>
+                <div class="title" data-lang="main-title">استوديو الإعلانات</div>
+                <div class="mode-tabs" id="modeTabs">
+                    <button class="tab-btn active" id="tabSubmit" onclick="switchTab('submit')" data-lang="tab-submit">نشر إعلان</button>
+                    <button class="tab-btn hidden" id="tabAdmin" onclick="switchTab('admin')" data-lang="tab-admin">إدارة الإعلانات</button>
+                    <button class="tab-btn hidden" id="tabBillboards" onclick="switchTab('billboards')" data-lang="tab-billboards">لوحات الشوارع</button>
+                </div>
+            </div>
+            <div class="titlebar-right">
+                <div class="lang-switch">
+                    <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" onclick="setLanguage('es')">ES</button>
+                    <button class="lang-btn" onclick="setLanguage('pt')">PT</button>
+                    <button class="lang-btn" onclick="setLanguage('tr')">TR</button>
+                    <button class="lang-btn" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <button class="win-btn win-close" onclick="closePanel()" title="Close">&#10005;</button>
+            </div>
+        </div>
+
+        <div class="body" id="submitView">
+            <div class="col col-list">
+                <div class="col-head">
+                    <span class="col-title" data-lang="new-ad-title">إنشاء حملة إعلانية جديدة</span>
+                    <button class="ghost-btn" onclick="copyUploadSite()" data-lang="copy-site-btn">نسخ موقع رفع صور</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-lang="label-url">الرابط المباشر للصورة (.png / .jpg)</span>
+                        <span class="label-hint" id="domainsHint">i.imgur.com / i.ibb.co / i.postimg.cc</span>
+                    </label>
+                    <input type="text" class="search" id="adUrlInput" placeholder="https://i.ibb.co/test/p_example.png" oninput="onUrlInput()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span data-lang="label-hours">مدة الحملة (بالساعات)</span>
+                            <span class="label-hint" id="hoursRangeHint">1 - 48</span>
+                        </label>
+                        <input type="number" class="search" id="adHoursInput" min="1" max="48" value="1" oninput="updatePriceCalculation()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span data-lang="label-seconds">ثواني الظهور في كل دورة</span>
+                            <span class="label-hint" id="secondsRangeHint">5 - 15s</span>
+                        </label>
+                        <input type="number" class="search" id="adSecondsInput" min="5" max="15" value="10" oninput="updatePriceCalculation()">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col col-side">
+                <div class="card files-card">
+                    <div class="card-title">
+                        <span data-lang="preview-title">معاينة حية للوحة</span>
+                        <span class="card-sub">16 : 9 / 2 : 1</span>
+                    </div>
+                    <div class="preview-box">
+                        <img id="submitPreviewImg" class="preview-img hidden" alt="Preview" onload="onPreviewLoad(true)" onerror="onPreviewLoad(false)">
+                        <div class="empty small" id="submitPreviewEmpty" data-lang="preview-empty">ضع رابط صورة مباشر لمعاينتها هنا</div>
+                    </div>
+                </div>
+
+                <div class="card options-card">
+                    <div class="card-title" data-lang="summary-title">ملخص التكلفة</div>
+                    <div class="summary-rows">
+                        <div class="file-row">
+                            <span class="file-name" data-lang="sum-duration">إجمالي الساعات</span>
+                            <span class="file-type client" id="sumHours">1h</span>
+                        </div>
+                        <div class="file-row">
+                            <span class="file-name" data-lang="sum-cycle">مدة الظهور بالدورة</span>
+                            <span class="file-type server" id="sumSeconds">10s</span>
+                        </div>
+                        <div class="file-row">
+                            <span class="file-name" data-lang="sum-total">التكلفة الإجمالية</span>
+                            <span class="badge compiled" id="sumTotalPrice">$5,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="primary-btn" onclick="submitAd()">
+                        <span id="submitBtnText">نشر الإعلان ($5,000)</span>
+                    </button>
+                    <button class="secondary-btn" onclick="closePanel()" data-lang="btn-close">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="body hidden" id="adminView">
+            <div class="col col-list">
+                <div class="col-head">
+                    <span class="col-title" data-lang="admin-list-title">قائمة الإعلانات</span>
+                    <span class="counter" id="adsCounter">0</span>
+                    <button class="ghost-btn" onclick="refreshAdminList()" data-lang="refresh-btn">تحديث</button>
+                </div>
+
+                <div class="search-wrap">
+                    <input type="text" class="search" id="adminSearchInput" data-lang="admin-search" placeholder="ابحث برقم الإعلان، المالك، أو الرابط..." oninput="renderAdminList()">
+                </div>
+
+                <div class="list-toolbar">
+                    <div class="filter-chips">
+                        <button class="filter-chip active" onclick="setAdminFilter('all', this)" data-lang="filter-all">الكل</button>
+                        <button class="filter-chip" onclick="setAdminFilter('pending', this)" data-lang="status-pending">قيد المراجعة</button>
+                        <button class="filter-chip" onclick="setAdminFilter('active', this)" data-lang="status-active">نشط</button>
+                        <button class="filter-chip" onclick="setAdminFilter('paused', this)" data-lang="status-paused">متوقف</button>
+                        <button class="filter-chip" onclick="setAdminFilter('rejected', this)" data-lang="status-rejected">مرفوض</button>
+                    </div>
+                </div>
+
+                <div class="list" id="adminAdsList">
+                    <div class="empty" data-lang="no-ads">لا توجد إعلانات مطابقة</div>
+                </div>
+            </div>
+
+            <div class="col col-side">
+                <div class="card files-card">
+                    <div class="card-title">
+                        <span data-lang="ad-details-title">فحص ومعاينة الإعلان</span>
+                        <span class="card-sub" id="selectedAdIdLabel">&mdash;</span>
+                    </div>
+
+                    <div class="preview-box small-preview">
+                        <img id="adminPreviewImg" class="preview-img hidden" alt="Ad Preview">
+                        <div class="empty small" id="adminPreviewEmpty" data-lang="select-ad-hint">اختر إعلاناً من القائمة لعرض تفاصيله</div>
+                    </div>
+
+                    <div class="files" id="adminDetailsList"></div>
+                </div>
+
+                <div class="actions">
+                    <div class="action-grid">
+                        <button class="primary-btn btn-accept" onclick="triggerAdminAction('accept')" data-lang="act-accept">قبول</button>
+                        <button class="secondary-btn btn-reject" onclick="triggerAdminAction('reject')" data-lang="act-reject">رفض</button>
+                        <button class="secondary-btn" onclick="triggerAdminAction('pause')" data-lang="act-pause">إيقاف مؤقت</button>
+                        <button class="secondary-btn" onclick="triggerAdminAction('resume')" data-lang="act-resume">استئناف</button>
+                    </div>
+                    <div class="action-grid">
+                        <button class="secondary-btn" onclick="copySelectedAdUrl()" data-lang="act-copy-url">نسخ الرابط</button>
+                        <button class="secondary-btn btn-reject" onclick="triggerAdminAction('delete')" data-lang="act-delete">حذف نهائي</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="body hidden" id="billboardsView">
+            <div class="col col-list">
+                <div class="col-head">
+                    <span class="col-title" data-lang="bb-list-title">لوحات الشوارع المسجلة</span>
+                    <span class="counter" id="bbCounter">0</span>
+                    <button class="ghost-btn" onclick="triggerBillboardAction('toggle3d')" data-lang="bb-toggle-3d">إظهار/إخفاء الأرقام 3D</button>
+                </div>
+
+                <div class="search-wrap">
+                    <input type="text" class="search" id="bbSearchInput" placeholder="Search billboard #ID..." oninput="renderBillboardsList()">
+                </div>
+
+                <div class="list" id="billboardsList">
+                    <div class="empty" data-lang="bb-empty">لا توجد لوحات مضافة في العالم بعد</div>
+                </div>
+            </div>
+
+            <div class="col col-side">
+                <div class="card files-card">
+                    <div class="card-title">
+                        <span data-lang="bb-control-title">التحكم في اللوحة المحددة</span>
+                        <span class="card-sub" id="selectedBbIdLabel">&mdash;</span>
+                    </div>
+
+                    <div class="files" id="bbDetailsList">
+                        <div class="empty small" data-lang="bb-select-hint">اختر لوحة من القائمة للتحكم بموقعها أو زاويتها</div>
+                    </div>
+
+                    <div class="placement-editor">
+                        <div class="placement-grid">
+                            <label class="coord-field"><span data-lang="bb-x-label">X</span><input type="number" step="0.01" class="search" id="bbXInput" placeholder="0.00"></label>
+                            <label class="coord-field"><span data-lang="bb-y-label">Y</span><input type="number" step="0.01" class="search" id="bbYInput" placeholder="0.00"></label>
+                            <label class="coord-field"><span data-lang="bb-z-label">Z</span><input type="number" step="0.01" class="search" id="bbZInput" placeholder="0.00"></label>
+                            <label class="coord-field"><span data-lang="bb-rz-label">Rotation</span><input type="number" step="0.1" min="0" max="360" class="search" id="bbRotationInput" placeholder="0"></label>
+                            <label class="coord-field"><span data-lang="bb-interior-label">Interior</span><input type="number" min="0" max="255" step="1" class="search" id="bbInteriorInput" placeholder="0"></label>
+                            <label class="coord-field"><span data-lang="bb-dimension-label">Dimension</span><input type="number" min="0" max="65535" step="1" class="search" id="bbDimensionInput" placeholder="0"></label>
+                        </div>
+                        <div class="placement-actions">
+                            <button class="secondary-btn" onclick="captureBillboardPosition()" data-lang="bb-use-position-btn">Use My Position</button>
+                            <button class="ghost-btn" onclick="applyBillboardPosition()" data-lang="bb-apply-position-btn">Apply Coordinates</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <div class="action-grid creation-actions">
+                        <button class="primary-btn btn-accept" onclick="triggerBillboardAction('create')" data-lang="bb-create-btn">Create Billboard at Coordinates</button>
+                        <button class="secondary-btn" onclick="triggerBillboardAction('createhere')" data-lang="bb-create-here-btn">Create at My Position</button>
+                    </div>
+                    <div class="action-grid">
+                        <button class="secondary-btn" onclick="triggerBillboardAction('teleport')" data-lang="bb-tp-btn">الانتقال للوحة</button>
+                        <button class="secondary-btn" onclick="triggerBillboardAction('movehere')" data-lang="bb-move-btn">نقلها لموقعي</button>
+                    </div>
+                    <button class="secondary-btn btn-reject" onclick="triggerBillboardAction('delete')" data-lang="bb-del-btn">حذف اللوحة المحددة</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="statusbar" id="statusbar">
+            <div class="status-row">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText" data-lang="status-idle">جاهز</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
